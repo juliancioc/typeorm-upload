@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from "t
 
 export class AlterTransactionField1588469743055 implements MigrationInterface {
     
-    public async up(queryRunner: QueryRunner): Promise<any> {
+    public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.dropColumn('transactions', 'category');
         
         await queryRunner.addColumn(
@@ -25,20 +25,20 @@ export class AlterTransactionField1588469743055 implements MigrationInterface {
             }));
             
         }
-
+        
         public async down(queryRunner: QueryRunner): Promise<any> {
             await queryRunner.dropForeignKey('transactions', 'TransactionCategory');
-
+            
             await queryRunner.dropColumn('transactions', 'category_id');
-    
+            
             await queryRunner.addColumn(
                 'transactions',
                 new TableColumn({
-                    name: 'provider',
+                    name: 'category',
                     type: 'varchar'
                 }),
-            ); 
+                ); 
+            }
+            
         }
         
-    }
-    

@@ -5,25 +5,24 @@ import Transaction from '../models/Transaction';
 import TransactionsRepository from '../repositories/TransactionsRepository';
 
 interface Request {
-    title: string;
-    type: string;
-    value: number;
-    category: string
+    title: string,
+    value: number,
+    type: string,
+    category_id: string | undefined
 }
 
 class CreateTransactionService {
-    public async execute({ title, type, value, category }: Request): Promise< Transaction> {
+    public async execute({ title, value, type, category_id }: Request): Promise< Transaction> {
         const transactionsRepository = getCustomRepository(TransactionsRepository);
-
         const transaction = transactionsRepository.create({
-            title,
-            type,
-            value,
-            category
-        })
-
+           title,
+           value,
+           type,
+           category_id
+        });
+        
         await transactionsRepository.save(transaction);
-
+        
         return transaction;
     }
 }

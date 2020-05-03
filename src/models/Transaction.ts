@@ -16,26 +16,26 @@ class Transaction {
   id: string;
   
   @Column()
-  category_id: string;
-  
-  @ManyToOne(() => Category)
-  @JoinColumn({ name: 'category_id' })
-  category: Category;
-  
-  @Column()
   title: string;
   
   @Column()
-  type: 'income' | 'outcome';
+  type: string
   
   @Column()
   value: number;
+
+  @Column()
+  category_id: string;
   
   @CreateDateColumn()
   created_at: Date;
   
   @UpdateDateColumn()
   updated_at: Date;
+  
+  @ManyToOne(() => Category)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 }
 
 export default Transaction;
