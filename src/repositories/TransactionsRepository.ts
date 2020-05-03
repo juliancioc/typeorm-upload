@@ -12,6 +12,9 @@ interface Balance {
 class TransactionsRepository extends Repository<Transaction> {
   public async getBalance(): Promise<Balance> {
     // TODO
+    const transactions = await this.getBalance();
+
+    return transactions;
   }
 }
 
