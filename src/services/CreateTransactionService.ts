@@ -4,21 +4,28 @@ import AppError from '../errors/AppError';
 import Transaction from '../models/Transaction';
 import TransactionsRepository from '../repositories/TransactionsRepository';
 
+interface Category {
+    id?: string,
+    title?: string;
+    created_at?: Date,
+    updated_at?: Date
+}
+
 interface Request {
     title: string,
     value: number,
     type: string,
-    category_id: string | undefined
+    category?: Category,
 }
 
 class CreateTransactionService {
-    public async execute({ title, value, type, category_id }: Request): Promise< Transaction> {
+    public async execute({ title, value, type, category }: Request): Promise< Transaction> {
         const transactionsRepository = getCustomRepository(TransactionsRepository);
         const transaction = transactionsRepository.create({
            title,
            value,
            type,
-           category_id
+           category
         });
         
         await transactionsRepository.save(transaction);
