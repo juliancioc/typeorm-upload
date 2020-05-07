@@ -20,12 +20,20 @@ interface Request {
 
 class CreateTransactionService {
     public async execute({ title, value, type, category }: Request): Promise< Transaction> {
+        
         const transactionsRepository = getCustomRepository(TransactionsRepository);
+        const transactions = await transactionsRepository.find();
+        
+        const balance = await transactionsRepository.getBalance(transactions);
+        if (type === 'outcome' && value > balance.total) {
+            throw new AppError('Balance unvailable')
+        }
+        
         const transaction = transactionsRepository.create({
-           title,
-           value,
-           type,
-           category
+            title,
+            value,
+            type,
+            category
         });
         
         await transactionsRepository.save(transaction);

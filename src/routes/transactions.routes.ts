@@ -1,17 +1,20 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { getCustomRepository } from 'typeorm';
+
+import uploadConfig from '../config/upload';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
 import CategoriesRepository from '../repositories/CategoriesRepository';
 import CreateTransactionService from '../services/CreateTransactionService';
 import CreateCategoryService from '../services/CreateCategoryService';
-import Category from '../models/Category';
 // import DeleteTransactionService from '../services/DeleteTransactionService';
-// import ImportTransactionsService from '../services/ImportTransactionsService';
+import ImportTransactionsService from '../services/ImportTransactionsService';
 
 const transactionsRouter = Router();
+const upload = multer(uploadConfig);
 
-transactionsRouter.get('/', async (request, response) => {
+transactionsRouter.get('/', async (request, response) => { 
   // TODO
   const transactionsRepository = getCustomRepository(TransactionsRepository);
   const dataTransactions = await transactionsRepository.find();
@@ -19,24 +22,6 @@ transactionsRouter.get('/', async (request, response) => {
   const categoriesRepository = getCustomRepository(CategoriesRepository);
   const categories = await categoriesRepository.find();
   
-  let initialValueIncome = 0;
-  let initialValueOutcome = 0;
-  
-  const income = dataTransactions
-  .filter(({ type }) => type === 'income')
-  .reduce((accumulator, currentValue) => accumulator + currentValue.value
-  , initialValueIncome
-  );
-  
-  const outcome = dataTransactions
-  .filter(({ type }) => type === 'outcome')
-  .reduce((acumulator, currentValue) => acumulator + currentValue.value
-  , initialValueOutcome);
-
-  const total = income - outcome;
-  
-  const balance = { income, outcome, total }
- 
   const transactions: Array<any> = [];
   
   dataTransactions.forEach((t) => {
@@ -52,9 +37,12 @@ transactionsRouter.get('/', async (request, response) => {
       updated_at: t.updated_at
     });
   });
+
+const balance = await transactionsRepository.getBalance(transactions);
   
   return response.json({ transactions, balance })
 });
+
 
 transactionsRouter.post('/', async (request, response) => {
   // TODO
@@ -104,10 +92,22 @@ transactionsRouter.post('/', async (request, response) => {
 
 transactionsRouter.delete('/:id', async (request, response) => {
   // TODO
+  const transactionsRepository = getCustomRepository(TransactionsRepository);
+  const results = await transactionsRepository.delete(request.params.id);
+
+  return response.send(results)
 });
 
-transactionsRouter.post('/import', async (request, response) => {
-  // TODO
+transactionsRouter.post(
+  '/import', 
+  upload.single('file'),
+  async (request, response) => {
+
+  const importTransactions = new ImportTransactionsService();
+
+  const transactions = await importTransactions.execute(request.file.path);
+
+  return response.json(transactions)
 });
 
 export default transactionsRouter;
